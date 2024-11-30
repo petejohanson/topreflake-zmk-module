@@ -1,0 +1,127 @@
+/*
+ * Copyright (c) 2024 Pete Johanson
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+/dts-v1/;
+#include <atmel/samd21.dtsi>
+#include <atmel/samx2xx18.dtsi>
+#include "petejohanson_topreflake-pinctrl.dtsi"
+#include <dt-bindings/zmk/matrix_transform.h>
+#include <physical_layouts.dtsi>
+
+/ {
+	model = "TopreFlake";
+	compatible = "petejohanson,topreflake";
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &code_partition;
+	};
+
+	transform: transform {
+		compatible = "zmk,matrix-transform";
+
+		rows = <1>;
+		columns = <1>;
+
+		map = <RC(0,0)>;
+	};
+
+	phys_layout: phys_layout {
+		compatible = "zmk,physical-layout";
+
+		display-name = "Standard";
+		transform = <&transform>;
+		kscan = <&matrix>;
+
+		keys = <&key_physical_attrs 100 100 100 100 0 0 0> ;
+	};
+
+	matrix: matrix {
+		compatible = "zmk,kscan-ec-matrix";
+
+		matrix-relax-us = <30>;
+		adc-read-settle-us = <1>;
+
+		strobe-gpios
+			= <&porta 16 GPIO_ACTIVE_HIGH>
+			;
+
+		input-gpios
+			= <&porta 3 0>
+			;
+
+		drain-gpios = <&porta 15 GPIO_ACTIVE_HIGH>;
+		io-channels = <&adc 7>;
+		strobe-input-masks = <0>;
+	};
+};
+
+&porta {
+	status = "okay";
+};
+
+&pinctrl {
+	adc_ain7_default: adc_ain7_default {
+		group1 {
+			pinmux = <PA7B_ADC_AIN7>;
+		};
+	};
+};
+
+&adc {
+	pinctrl-0 = <&adc_ain7_default>;
+	pinctrl-names = "default";
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@7 {
+		reg = <7>;
+		zephyr,gain = "ADC_GAIN_1_2";
+		zephyr,reference = "ADC_REF_VDD_1_2";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,resolution = <8>;
+		zephyr,input-positive = <7>;
+	};
+};
+
+&cpu0 {
+	clock-frequency = <48000000>;
+};
+
+zephyr_udc0: &usb0 {
+        status = "okay";
+
+        pinctrl-0 = <&usb_dc_default>;
+        pinctrl-names = "default";
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			reg = <0x00000000 DT_SIZE_K(8)>;
+			read-only;
+		};
+
+		code_partition: partition@2000 {
+			reg = <0x2000 DT_SIZE_K(256-8-16)>;
+			read-only;
+		};
+
+		/*
+		 * The final 16 KiB is reserved for the application.
+		 * Storage partition may be used by FCB or LittleFS.
+		 */
+		storage_partition: partition@3c000 {
+			reg = <0x0003c000 DT_SIZE_K(16)>;
+		};
+	};
+};

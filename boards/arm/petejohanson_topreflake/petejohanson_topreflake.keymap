@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2020 The ZMK Contributors
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+
+/ {
+    macros {
+        ZMK_MACRO(holiday_macro,
+            display-name = "Holiday Macro";
+            wait-ms = <1>;
+            tap-ms = <1>;
+            bindings
+	    	= <&kp LS(H)>
+	        , <&kp A>
+		, <&kp P>
+		, <&kp P>
+		, <&kp Y>
+		, <&kp SPC>
+		, <&kp LS(H)>
+	        , <&kp O>
+		, <&kp L>
+		, <&kp I>
+		, <&kp D>
+		, <&kp A>
+		, <&kp Y>
+		, <&kp S>
+		, <&kp COMMA>
+		, <&kp SPC>
+		, <&kp LS(N2)>
+	        , <&kp LS(S)>
+		, <&kp A>
+		, <&kp D>
+		, <&kp LS(W)>
+		, <&kp I>
+		, <&kp T>
+		, <&kp C>
+		, <&kp H>
+		, <&kp EXCL>
+		;
+        )
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            display-name = "Base";
+            bindings = <&holiday_macro>;
+        };
+
+        res1 { status = "reserved"; };
+        res2 { status = "reserved"; };
+        res3 { status = "reserved"; };
+        res4 { status = "reserved"; };
+    };
+};
+
